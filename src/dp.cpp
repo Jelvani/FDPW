@@ -3,10 +3,8 @@
 #include <iostream>
 #include <cstdint>
 #include <numeric>
-#include <chrono>
-#include <functional>
-#include <string>
-#include <type_traits>
+
+#include "benchmark.hpp"
 using namespace std;
 
 #define MAX 1000000
@@ -14,27 +12,6 @@ using namespace std;
 /*
 Different methods of computing an inner product in C++
 */
-
-
-//generated with GPT
-template<typename Func, typename... Args>
-void benchmark(string func_name, Func func, Args&&... args) {
-
-    // Start the timer
-    auto start = std::chrono::high_resolution_clock::now();
-
-    // Call the function to be benchmarked
-    std::invoke(func, std::forward<Args>(args)...);
-
-    // Stop the timer
-    auto end = std::chrono::high_resolution_clock::now();
-
-    // Calculate the elapsed time in microseconds
-    auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
-    // Print the function name and elapsed time
-    std::cout << func_name << ": " << elapsed.count() << " μs" << std::endl;
-}
 
 uint64_t dp_naive(vector<uint64_t> d1, vector<uint64_t> d2)
 {
