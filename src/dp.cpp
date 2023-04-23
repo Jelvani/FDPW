@@ -3,8 +3,11 @@
 #include <iostream>
 #include <cstdint>
 #include <numeric>
-
+#ifdef PARA
+#include <omp.h>
+#endif
 #include "benchmark.hpp"
+
 using namespace std;
 
 #define MAX 1000000
@@ -17,6 +20,10 @@ uint64_t dp_naive(vector<uint64_t> d1, vector<uint64_t> d2)
 {
     uint64_t dim = d1.size();
     uint64_t accum = 0;
+    #ifdef PARA
+    omp_set_num_threads(8);
+    #pragma omp parallel for reduction (+:accum)
+    #endif
     for(uint64_t i = 0; i < dim; i++)
     {
         accum += d1[i]*d2[i];
@@ -27,11 +34,13 @@ uint64_t dp_naive(vector<uint64_t> d1, vector<uint64_t> d2)
 
 uint64_t dp_modern(vector<uint64_t> d1, vector<uint64_t> d2)
 {
-    return inner_product(std::begin(d1), std::end(d1), std::begin(d2), (uint64_t)0);
+    return std::inner_product(std::begin(d1), std::end(d1), std::begin(d2), (uint64_t)0);
+
 }
 
 int main(int argc, char* argv[])
 {
+
     if(argc < 2)
     {
         cout << "Pass vector dimension" << endl;
@@ -41,6 +50,7 @@ int main(int argc, char* argv[])
 
     vector<uint64_t> d1(dim);
     vector<uint64_t> d2(dim);
+
     for(uint64_t i = 0; i < dim; i++)
     {
         d1[i] = rand() % MAX;
@@ -49,7 +59,7 @@ int main(int argc, char* argv[])
 
     //dummy run to warmup cache
     volatile auto dummy = dp_modern(d1,d2);
-
+    cout << "start" << endl;
     benchmark("dp_naive",dp_naive,d1,d2);
     benchmark("dp_modern",dp_modern,d1,d2);
     return 0;
