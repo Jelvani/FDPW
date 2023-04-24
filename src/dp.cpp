@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdint>
 #include <numeric>
+#include <unistd.h>
 #ifdef PARA
 #include <omp.h>
 #endif
@@ -20,13 +21,20 @@ uint64_t dp_naive(vector<uint64_t> d1, vector<uint64_t> d2)
 {
     uint64_t dim = d1.size();
     uint64_t accum = 0;
+
+    struct timespec tim, tim2;
+    tim.tv_sec = 0;
+    tim.tv_nsec = 0;
+
     #ifdef PARA
     omp_set_num_threads(8);
+
     #pragma omp parallel for reduction (+:accum)
     #endif
     for(uint64_t i = 0; i < dim; i++)
     {
         accum += d1[i]*d2[i];
+        //nanosleep(&tim , &tim2); //we really just need a function call overhead
     }
 
     return accum;
